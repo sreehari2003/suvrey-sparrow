@@ -3,8 +3,8 @@ import { Input } from "@app/components/Input";
 import { StepProps } from ".";
 
 interface FormError {
-  emailError: boolean;
-  numberError: boolean;
+  emailError: string;
+  numberError: string;
 }
 
 export const One = ({ handleData, data }: StepProps) => {
@@ -16,26 +16,35 @@ export const One = ({ handleData, data }: StepProps) => {
   });
 
   const [errors, setErrors] = useState<FormError>({
-    emailError: false,
-    numberError: false,
+    emailError: "",
+    numberError: "",
   });
 
   const handleChange = <T extends HTMLInputElement | HTMLTextAreaElement>(
     e: React.ChangeEvent<T>
   ) => {
-    const formToError = new Map<string, keyof FormError>();
-    formToError.set("email", "emailError");
-    formToError.set("number", "numberError");
-
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
-    const key = formToError.get(name);
 
-    if (key) {
-      setErrors({
-        ...errors,
-        [key]: false,
-      });
+    if (name === "email") {
+      const emailPattern = /\S+@\S+\.\S+/;
+      const isValidEmail = emailPattern.test(value);
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        emailError: isValidEmail ? "" : "Invalid email format",
+      }));
+    } else if (name === "number") {
+      const phoneNumberPattern = /^\d{10}$/;
+      const isValidPhoneNumber = phoneNumberPattern.test(value);
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        numberError: isValidPhoneNumber ? "" : "Phone number must be 10 digits",
+      }));
+    } else {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        [name + "Error"]: "",
+      }));
     }
   };
 
@@ -44,8 +53,14 @@ export const One = ({ handleData, data }: StepProps) => {
 
     // Validation
     const newErrors: FormError = {
-      emailError: !formData.email,
-      numberError: !formData.number,
+      emailError:
+        !formData.email || !/\S+@\S+\.\S+/.test(formData.email)
+          ? "Email is required"
+          : "",
+      numberError:
+        !formData.number || !/^\d{10}$/.test(formData.number)
+          ? "Phone number is required"
+          : "",
     };
     setErrors(newErrors);
 
@@ -73,8 +88,9 @@ export const One = ({ handleData, data }: StepProps) => {
           type="email"
           value={formData.email}
           onChange={handleChange}
-          isError={errors.emailError}
+          isError={Boolean(errors.emailError)}
           name="email"
+          message={errors.emailError}
         />
       </div>
       <div className="flex flex-col gap-2 mt-2">
@@ -84,8 +100,9 @@ export const One = ({ handleData, data }: StepProps) => {
           type="number"
           value={formData.number}
           onChange={handleChange}
-          isError={errors.numberError}
+          isError={Boolean(errors.numberError)}
           name="number"
+          message={errors.numberError}
         />
       </div>
       <div className="flex flex-col gap-2 mt-2">

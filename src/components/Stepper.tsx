@@ -9,6 +9,8 @@ interface StepperProps {
 
 export const Stepper = ({ activeStep, setStep, highestStep }: StepperProps) => {
   const goToStep = (index: number) => {
+    if (activeStep === 3) return;
+
     if (index > highestStep) return;
     setStep(index);
   };
