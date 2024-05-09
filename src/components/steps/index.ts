@@ -14,4 +14,7 @@ export { Three } from "./Three";
 
 export interface StepProps {
   handleData: (data: Partial<Data>) => void;
+  setData?: React.Dispatch<number>;
+  activeStep?: number;
+  data?: Data;
 }

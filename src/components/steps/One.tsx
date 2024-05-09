@@ -2,22 +2,42 @@ import React, { useState } from "react";
 import { Input } from "@app/components/Input";
 import { StepProps } from ".";
 
-export const One = ({ handleData }: StepProps) => {
+interface FormError {
+  nameError: boolean;
+  emailError: boolean;
+  numberError: boolean;
+}
+
+export const One = ({ handleData, data }: StepProps) => {
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    number: "",
+    name: data?.name || "",
+    email: data?.email || "",
+    number: data?.number || "",
   });
 
-  const [errors, setErrors] = useState({
+  console.log(data, "USER DATA");
+
+  const [errors, setErrors] = useState<FormError>({
     nameError: false,
     emailError: false,
     numberError: false,
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formToError = new Map<string, keyof FormError>();
+    formToError.set("name", "nameError");
+    formToError.set("email", "emailError");
+    formToError.set("number", "numberError");
+
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    const key = formToError.get(name);
+
+    // This is done for real time form validation
+    setErrors({
+      ...errors,
+      [key!]: false,
+    });
   };
 
   const handleNext = (e: React.FormEvent) => {
@@ -47,7 +67,7 @@ export const One = ({ handleData }: StepProps) => {
         <label htmlFor="name">Name</label>
         <Input
           id="name"
-          value={formData.name}
+          value={formData.name || data?.name || ""}
           onChange={handleChange}
           isError={errors.nameError}
           name="name"

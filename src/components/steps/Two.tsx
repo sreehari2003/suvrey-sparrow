@@ -2,12 +2,23 @@ import React, { useState } from "react";
 import { Input } from "@app/components/Input";
 import { StepProps } from ".";
 
-export const Two = ({ handleData }: StepProps) => {
+interface FormError {
+  cardError: boolean;
+  cvvError: boolean;
+  expiryError: boolean;
+}
+
+export const Two = ({ handleData, setData, activeStep, data }: StepProps) => {
   const [formData, setFormData] = useState({
-    cardNumber: "",
-    cvv: "",
-    expiryDate: "",
+    cardNumber: data?.cardNumber || "",
+    cvv: data?.cvv || "",
+    expiryDate: data?.expiryDate || "",
   });
+
+  const handlePrevious = () => {
+    if (activeStep === 1) return;
+    setData!(activeStep! - 1);
+  };
 
   const [errors, setErrors] = useState({
     cardError: false,
@@ -16,8 +27,20 @@ export const Two = ({ handleData }: StepProps) => {
   });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formToError = new Map<string, keyof FormError>();
+    formToError.set("cardNumber", "cardError");
+    formToError.set("cvv", "cvvError");
+    formToError.set("expiryDate", "expiryError");
+
     const { name, value } = e.target;
     setFormData({ ...formData, [name]: value });
+    const key = formToError.get(name);
+
+    // This is done for real time form validation
+    setErrors({
+      ...errors,
+      [key!]: false,
+    });
   };
 
   const handleNext = (e: React.FormEvent) => {
@@ -72,13 +95,19 @@ export const Two = ({ handleData }: StepProps) => {
         <Input
           id="expiryDate"
           type="date"
-          value={formData.expiryDate}
+          value={new Date(formData.expiryDate).toLocaleDateString("en-CA")}
           onChange={handleChange}
           isError={errors.expiryError}
           name="expiryDate"
         />
       </div>
-      <div className="mt-4">
+      <div className="mt-4 flex gap-2">
+        <button
+          onClick={handlePrevious}
+          className="px-4 py-2 inline-flex justify-center items-center bg-blue-500 rounded-md text-white w-full"
+        >
+          Previous
+        </button>
         <button
           className="px-4 py-2 inline-flex justify-center items-center bg-blue-500 rounded-md text-white w-full"
           type="submit"

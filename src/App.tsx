@@ -25,9 +25,9 @@ export const App = () => {
 
   const handleData = (data: Partial<Data>) => {
     setActiveStep((prev) => prev + 1);
-    setUserData({
-      ...userData,
-      ...data,
+    setUserData((prevUserData) => {
+      const updatedUserData = { ...prevUserData, ...data };
+      return updatedUserData;
     });
   };
 
@@ -39,10 +39,20 @@ export const App = () => {
           setStep={setActiveStep}
           highestStep={highestStep}
         />
-        <h2 className="mt-4">Payments</h2>
+        <h2 className="mt-4">
+          {activeStep === 1 && "User Info"}
+          {activeStep === 2 && "Payment Info"}
+        </h2>
         <div className="mt-5">
-          {activeStep === 1 && <One handleData={handleData} />}
-          {activeStep === 2 && <Two handleData={handleData} />}
+          {activeStep === 1 && <One handleData={handleData} data={userData} />}
+          {activeStep === 2 && (
+            <Two
+              handleData={handleData}
+              activeStep={activeStep}
+              setData={setActiveStep}
+              data={userData}
+            />
+          )}
           {activeStep === 3 && <Three />}
         </div>
       </div>
