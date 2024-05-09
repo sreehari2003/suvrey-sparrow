@@ -5,10 +5,11 @@ import { cn } from "@app/utils/cn";
 export interface InputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   isError?: boolean;
+  message?: string;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ className, type, isError, ...props }, ref) => {
+  ({ className, type, isError, message, ...props }, ref) => {
     return (
       <div>
         <input
@@ -24,7 +25,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         />
         {isError && (
           <span className="mt-2 mb-2 text-red-500 text-sm font-thin">
-            This is a required field
+            {message || "This is a required field"}
           </span>
         )}
       </div>

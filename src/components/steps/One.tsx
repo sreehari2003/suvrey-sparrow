@@ -3,7 +3,6 @@ import { Input } from "@app/components/Input";
 import { StepProps } from ".";
 
 interface FormError {
-  nameError: boolean;
   emailError: boolean;
   numberError: boolean;
 }
@@ -13,19 +12,18 @@ export const One = ({ handleData, data }: StepProps) => {
     name: data?.name || "",
     email: data?.email || "",
     number: data?.number || "",
+    address: data?.address || "",
   });
 
-  console.log(data, "USER DATA");
-
   const [errors, setErrors] = useState<FormError>({
-    nameError: false,
     emailError: false,
     numberError: false,
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = <T extends HTMLInputElement | HTMLTextAreaElement>(
+    e: React.ChangeEvent<T>
+  ) => {
     const formToError = new Map<string, keyof FormError>();
-    formToError.set("name", "nameError");
     formToError.set("email", "emailError");
     formToError.set("number", "numberError");
 
@@ -33,30 +31,26 @@ export const One = ({ handleData, data }: StepProps) => {
     setFormData({ ...formData, [name]: value });
     const key = formToError.get(name);
 
-    // This is done for real time form validation
-    setErrors({
-      ...errors,
-      [key!]: false,
-    });
+    if (key) {
+      setErrors({
+        ...errors,
+        [key]: false,
+      });
+    }
   };
 
   const handleNext = (e: React.FormEvent) => {
     e.preventDefault();
 
     // Validation
-    const newErrors = {
-      nameError: !formData.name,
+    const newErrors: FormError = {
       emailError: !formData.email,
       numberError: !formData.number,
     };
     setErrors(newErrors);
 
     // Proceed if no errors
-    if (
-      !newErrors.nameError &&
-      !newErrors.emailError &&
-      !newErrors.numberError
-    ) {
+    if (!newErrors.emailError && !newErrors.numberError) {
       handleData(formData);
     }
   };
@@ -69,7 +63,6 @@ export const One = ({ handleData, data }: StepProps) => {
           id="name"
           value={formData.name || data?.name || ""}
           onChange={handleChange}
-          isError={errors.nameError}
           name="name"
         />
       </div>
@@ -93,6 +86,17 @@ export const One = ({ handleData, data }: StepProps) => {
           onChange={handleChange}
           isError={errors.numberError}
           name="number"
+        />
+      </div>
+      <div className="flex flex-col gap-2 mt-2">
+        <label htmlFor="address">Address</label>
+        <textarea
+          id="address"
+          onChangeCapture={handleChange}
+          name="address"
+          rows={4}
+          cols={40}
+          className="ring-1 ring-blue-100 rounded-sm p-2"
         />
       </div>
       <div className="mt-4">
